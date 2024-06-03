@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+typedef struct {
+    char nome[50];
+    char email[50];
+    char senha[20];
+    struct tm dataNascimento;
+    char genero[20];
+    char pais[50];
+} Usuario;
+
+void registrarUsuario(Usuario *usuario) {
+    printf("========== REGISTRO DE USUÁRIO ==========\n");
+    printf("Digite seu nome: ");
+    scanf("%s", usuario->nome);
+
+    printf("Digite seu email: ");
+    scanf("%s", usuario->email);
+
+    printf("Confirme seu email: ");
+    char confirmEmail[50];
+    scanf("%s", confirmEmail);
+
+    if (strcmp(usuario->email, confirmEmail) != 0) {
+        printf("Os emails não coincidem. Tente novamente.\n");
+        registrarUsuario(usuario); // Chama novamente a função para inserir o email
+        return;
+    }
+
+    printf("Digite sua senha: ");
+    scanf("%s", usuario->senha);
+
+    printf("Digite sua data de nascimento (DD/MM/AAAA): ");
+    scanf("%d/%d/%d", &usuario->dataNascimento.tm_mday, &usuario->dataNascimento.tm_mon, &usuario->dataNascimento.tm_year);
+
+    usuario->dataNascimento.tm_mon -= 1; // Os meses em struct tm começam de 0
+    usuario->dataNascimento.tm_year -= 1900; // Ano baseado em 1900
+
+    printf("Digite seu gênero: ");
+    scanf("%s", usuario->genero);
+
+    printf("Digite seu país: ");
+    scanf("%s", usuario->pais);
+}
+
+int calcularIdade(struct tm dataNascimento) {
+    time_t agora;
+    time(&agora);
+    struct tm *agora_tm = localtime(&agora);
+
+    int idade = agora_tm->tm_year - dataNascimento.tm_year;
+
+    if ((agora_tm->tm_mon < dataNascimento.tm_mon) || (agora_tm->tm_mon == dataNascimento.tm_mon && agora_tm->tm_mday < dataNascimento.tm_mday)) {
+        idade--;
+    }
+
+    return idade;
+}
+
+int main() {
+    Usuario novoUsuario;
+
+    registrarUsuario(&novoUsuario);
+
+    int idade = calcularIdade(novoUsuario.dataNascimento);
+    if (idade < 13) {
+        printf("Você deve ter no mínimo 13 anos para se registrar.\n");
+        return 1;
+    }
+
+    printf("\n========== INFORMAÇÕES DO USUÁRIO ==========\n");
+    printf("Nome: %s\nEmail: %s\nGênero: %s\nPaís: %s\n", novoUsuario.nome, novoUsuario.email, novoUsuario.genero, novoUsuario.pais);
+
+    return 0;
+}
